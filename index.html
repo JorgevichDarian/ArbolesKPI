@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Árboles de KPIs DPO 2.0 · Logística Total</title>
+<style>
+:root{
+  --bg:#f3f4f6; --card:#fff; --ink:#1f2328; --mute:#667085; --line:#e3e6eb;
+  --navy:#2b2f36; --navy2:#3a3f48; --acc:#f07f1d; --grey:#8c8f94;
+  --s-rojo:#d64545; --s-naranja:#ef8a17; --s-amarillo:#e9c21b; --s-verde:#1e9e5a; --s-gris:#c3c9d3;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
+.brand{background:linear-gradient(90deg,#0d0f12 0%,#1a1d22 100%);display:flex;align-items:center;gap:16px;padding:12px 22px;flex-wrap:wrap}
+.brand img{height:46px;filter:drop-shadow(0 0 1px rgba(255,255,255,.25))}
+.brand .ttl{display:flex;flex-direction:column;line-height:1.15}
+.brand .ttl b{color:#fff;font-size:20px;letter-spacing:2px;font-weight:800}
+.brand .ttl span{color:var(--acc);font-size:13px;font-weight:600;letter-spacing:3px;text-transform:uppercase;margin-top:3px}
+.brand .hright{margin-left:auto;display:flex;gap:8px;align-items:center;font-size:12px;flex-wrap:wrap}
+.chip{background:#2a2e35;color:#d5d8de;padding:5px 10px;border-radius:20px;white-space:nowrap;border:1px solid #363b44}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
+nav{background:#1a1d22;display:flex;gap:6px;padding:6px 20px;flex-wrap:wrap;position:sticky;top:0;z-index:20;align-items:center;border-top:1px solid #2c3037;border-bottom:3px solid var(--acc)}
+nav button{background:transparent;color:#d5d8de;border:0;padding:7px 13px;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px}
+nav button:hover{background:var(--navy2)}
+nav button.on{background:var(--navy2);color:#fff;box-shadow:inset 0 -3px 0 var(--acc)}
+nav .grp{display:flex;align-items:center;gap:2px;border:1px solid #4a505a;border-radius:8px;padding:2px 4px 2px 10px}
+nav .grp>span{color:var(--acc);font-weight:800;font-size:12px;margin-right:4px;letter-spacing:.5px}
+main{padding:18px 20px;max-width:1750px;margin:0 auto}
+.tab{display:none}.tab.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:16px}
+.card h2{font-size:16px;margin:0 0 10px}
+.card h3{font-size:14px;margin:14px 0 6px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:16px}
+.muted{color:var(--mute)}
+.btn{background:var(--navy);color:#fff;border:0;border-radius:6px;padding:8px 14px;font-weight:600;cursor:pointer;font-size:13px;display:inline-block}
+.btn.sec{background:#e8ebf0;color:var(--ink)}
+.btn.acc{background:var(--acc);color:#fff}
+.btn:disabled{opacity:.5;cursor:default}
+input,select,textarea{font:inherit;font-size:13px;border:1px solid #cfd4dc;border-radius:6px;padding:6px 8px;background:#fff;color:var(--ink)}
+textarea{resize:vertical}
+label.f{display:flex;flex-direction:column;gap:3px;font-size:11px;font-weight:600;color:var(--mute);text-transform:uppercase;letter-spacing:.3px}
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.filters select,.filters input[type=search]{min-width:140px;max-width:240px}
+.kpis{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:140px}
+.kpi .v{font-size:22px;font-weight:700}
+.kpi .l{font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.3px}
+.kpi .s{font-size:11.5px;color:var(--mute);margin-top:2px}
+.tblwrap{overflow:auto;border:1px solid var(--line);border-radius:10px;background:#fff;max-height:calc(100vh - 290px)}
+table{border-collapse:collapse;width:100%}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{background:#eef0f3;font-size:11px;text-transform:uppercase;letter-spacing:.3px;color:#3d4450;position:sticky;top:0;z-index:2;white-space:nowrap}
+.sem{width:6px;padding:0!important}
+.sem-rojo{background:var(--s-rojo)}.sem-naranja{background:var(--s-naranja)}.sem-amarillo{background:var(--s-amarillo)}.sem-verde{background:var(--s-verde)}.sem-gris{background:var(--s-gris)}.sem-vacio{background:#f1f2f4}
+.tree td{font-size:12.5px}
+.tree tr:hover td{background:#f7f9fc}
+.tree tr.d0 td{background:#fff7ef;font-weight:700;font-size:13.5px}
+.tree tr.d1 td.nm{font-weight:600}
+td.nm{min-width:320px}
+.nmw{display:flex;align-items:flex-start;gap:4px}
+.car{width:18px;flex:0 0 18px;border:0;background:none;cursor:pointer;color:#6b7380;font-size:11px;padding:2px 0;line-height:1.3}
+.car.leaf{cursor:default;color:#c9ced6}
+.lv{display:inline-block;font-size:10px;font-weight:800;border-radius:4px;padding:1px 6px;letter-spacing:.4px;color:#fff}
+.lv-SKPI{background:var(--navy)}.lv-KPI{background:var(--acc)}.lv-PI{background:#9aa3b2}
+.unit{color:var(--mute);font-size:11.5px;white-space:nowrap}
+input.val{width:92px;text-align:right;font-size:12.5px;padding:4px 6px}
+input.val.has{border-color:#9fc5ad;background:#f4fbf6}
+td.prev{color:#a0a7b4;text-align:right;white-space:nowrap}
+td.obj{text-align:right;white-space:nowrap}
+td.def{max-width:300px;font-size:12px;line-height:1.35}
+.pend{display:inline-block;background:#fbe1e1;color:#9b1c1c;font-weight:700;border-radius:5px;padding:1px 7px;font-size:11px}
+.sug{color:#7a5a00;font-style:italic}
+.sug b{font-style:normal;background:#fff3d0;border-radius:4px;padding:0 5px;font-size:10px;margin-right:4px}
+.edit{white-space:nowrap;border:1px solid #cfd4dc;background:#fff;border-radius:6px;cursor:pointer;padding:3px 8px;font-size:12px}
+.edit:hover{border-color:var(--acc)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px}
+.legend span{display:flex;align-items:center;gap:6px}
+.sq{width:14px;height:14px;border-radius:3px;display:inline-block}
+.sect{font-size:12px;font-weight:800;color:var(--acc);letter-spacing:.6px;margin:4px 0 10px;text-transform:uppercase}
+.info p,.info li{line-height:1.55}
+.formula{background:#f6f7f9;border-left:4px solid var(--acc);padding:10px 14px;border-radius:6px;font-weight:600}
+.warn{background:#fff6e0;border:1px solid #f3d98b;border-radius:8px;padding:10px 12px;font-size:13px}
+.overlay{position:fixed;inset:0;background:rgba(30,33,38,.55);display:none;align-items:flex-start;justify-content:center;z-index:50;overflow:auto;padding:40px 10px}
+.overlay.on{display:flex}
+.modal{background:#fff;border-radius:12px;padding:22px;width:min(640px,96vw)}
+.modal h2{margin:0 0 4px;font-size:17px}
+.modal .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.modal .full{grid-column:1/-1}
+.modal textarea{min-height:64px;width:100%}
+.modal input,.modal select{width:100%}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.toast{position:fixed;bottom:18px;right:18px;background:var(--navy);color:#fff;padding:10px 16px;border-radius:8px;opacity:0;transition:.3s;z-index:60;pointer-events:none}
+.toast.on{opacity:1}
+.savebar{display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#1a1d22;color:#fff;border-radius:30px;padding:8px 10px 8px 18px;gap:12px;align-items:center;z-index:40;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.savebar.on{display:flex}
+.trnote{font-size:12.5px;color:var(--mute);margin:-4px 0 12px}
+.path{font-size:11.5px;color:var(--mute)}
+@media (max-width:700px){main{padding:12px}.grid2{grid-template-columns:1fr}.brand .ttl b{font-size:16px}.modal .grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="brand">
+  <img src="data:image/png;base64,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" alt="">
+  <div class="ttl"><b>LOGÍSTICA TOTAL SRL</b><span>Árboles de KPIs · DPO 2.0</span></div>
+  <div class="hright">
+    <span class="chip" id="perChip">—</span>
+    <span class="chip" id="conn"><span class="dot" style="background:#999"></span>conectando…</span>
+  </div>
+</div>
+<nav id="nav"></nav>
+
+<main>
+  <div class="card" id="fbar">
+    <div class="filters">
+      <label class="f">Período<select id="fMes"></select></label>
+      <label class="f">Mostrar<select id="fShow">
+        <option value="all">Todos los indicadores</option>
+        <option value="nodata">Sin dato en el período</option>
+        <option value="con">Con dato en el período</option>
+        <option value="nofuente">Sin fuente definida</option>
+        <option value="nocalc">Sin cálculo definido</option>
+        <option value="rojo">En rojo vs objetivo</option>
+      </select></label>
+      <label class="f">Nivel<select id="fLvl">
+        <option value="9">SKPI + KPI + PI</option>
+        <option value="1">SKPI + KPI</option>
+        <option value="0">Solo SKPI</option>
+      </select></label>
+      <label class="f">Buscar<input type="search" id="fQ" placeholder="Indicador, fuente, fórmula…"></label>
+      <button class="btn sec" id="bExp">Expandir todo</button>
+      <button class="btn sec" id="bCol">Colapsar</button>
+      <button class="btn sec" id="bCopy" title="Copia la tabla del árbol visible para pegar en Excel">⧉ Copiar para Excel</button>
+      <button class="btn sec" id="bJson">⇄ Exportar / importar</button>
+    </div>
+  </div>
+  <div id="tabs"></div>
+</main>
+
+<div class="overlay" id="ov"><div class="modal" id="md"></div></div>
+<div class="savebar" id="savebar"><span id="sbTxt">Cambios sin guardar</span><button class="btn acc" id="bSave">Guardar</button></div>
+<div class="toast" id="toast"></div>
+
+<script type="application/json" id="st">{"meta":{},"vals":{},"upd":null}</script>
+<script>
+const TPL = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+const SCRIPT_END = '<' + '/script>';
+let ST = JSON.parse(document.getElementById('st').textContent);
+ST.meta = ST.meta || {}; ST.vals = ST.vals || {};
+
+/* ================= ESTRUCTURA (fuente: Miro "DPO 2.0 - Global KPI Trees") ================= */
+const OUT_RMD = `T2 Rate My Delivery (#)
+  Deliveries With No Rating Given (%)
+  Deliveries With Rating Given (%)
+    Deliveries With Low Rate <4 (#)
+      Number of New Evaluators rates (#)
+        @DAMAGED:New evaluators rates - "damaged products" (#)
+        @DRIVER:New evaluators rates
+        New evaluators rates - "late or no delivery" (#)
+          OTIF (%)
+        New evaluators rates - "wrong quantity" (#)
+          OTIF (%)
+        New evaluators rates - "wrong products" (#)
+          OTIF (%)
+        New evaluators rates - "something else happened" (#)
+          New evaluators rates - "something else happened" due to high response time (#)
+      Number of Lost Promoters rates (#)
+        @DAMAGED:Lost promoters rates - "damaged products" (#)
+        @DRIVER:Lost promoters rates
+        Lost promoters rates - "late or no delivery" (#)
+          OTIF (%)
+        Lost promoters rates - "wrong quantity" (#)
+          OTIF (%)
+        Lost promoters rates - "wrong products" (#)
+          OTIF (%)
+        Lost promoters rates - "something else happened" (#)
+          Lost promoters rates - "something else happened" due to high response time (#)
+      Number of Recurring Detractors rates (#)
+        @DAMAGED:Recurring detractors rates - "damaged products" (#)
+        @DRIVER:Recurring detractors rates
+        Recurring detractors rates - "late or no delivery" (#)
+          OTIF (%)
+        Recurring detractors rates - "wrong quantity" (#)
+          OTIF (%)
+        Recurring detractors rates - "wrong products" (#)
+          OTIF (%)
+        Recurring detractors rates - "something else happened" (#)
+          Recurring detractors rates - "something else happened" due to high response time (#)
+    Deliveries With High Rate >=4 (#)
+      Reversed Detractors (#)
+      Recurring Promoters (#)`;
+const DAMAGED = `Damages in warehouse (khl)
+  Damages in warehouse - operator behavior (khl)
+    Damages in warehouse - forklift driver behavior (khl)
+    Damages in warehouse - picker behavior (khl)
+    Damages in warehouse - manual loader behavior (other modals) (khl)
+    Damages in warehouse - other handling activities (khl)
+  Damages in warehouse - equipment issue (khl)
+    Damages in warehouse - truck issue (khl)
+    Damages in warehouse - forklift issue (khl)
+    Damages in warehouse - pallet jack issue (khl)
+  Damages in warehouse - facility issue (khl)
+  Damages in warehouse - identified from T1 (khl)
+  Damages in warehouse - repacking quality (#)
+Damages in delivery (#)
+  Damages in delivery during handling (#)
+    Internal product quality (missing product/bottles) (#)
+    External package quality/ripped damages in delivery during handling (#)
+  Damages in delivery in transit (#)
+    Damages in delivery in transit - equipment condition (#)
+    Damages in delivery in transit - equipment model (#)
+    Damages in delivery in transit - driver behavior (#)`;
+
+const OUT_OTIF = `T2 OTIF (%)
+  On Time (%)
+    Pick Up Delay (khl)
+      Warehouse Absenteeism (%)
+      Mixed Pallets (%)
+      Equipment Availability (%)
+      Number of clients' withdraw (#)
+    Delivery Delay (khl)
+      2T Time Deviation (%)
+        Pre-route Time (min)
+        Sequence Adherence (%)
+        Unexpected stops (min)
+        Service Time per POC (min)
+        2T KM Deviation (%)
+        Driving Time Deviation (%)
+      Missed Time Window (# or khl)
+        Fleet Availability (%)
+        Delivery Absenteeism (%)
+      Postponed Volume (khl)
+        Postponed volume due to other issues (hl)
+          Delivery Absenteeism (%)
+          Fleet Availability (%)
+        Postponed volume due to capacity issues (hl)
+          Postponed volume - delivery capacity (hl)
+          Postponed volume - warehouse capacity (hl)
+      @LOADING
+    Order without Track and Trace (khl)
+  In Full (%)
+    Refusals (%)
+      Sales Refusals (%)
+        Sales Refusals - pricing issue (%)
+        Sales Refusals - Order Placed Incorrectly (%)
+      Customer Refusals (%)
+        Customer Refusals - Payment Issues (%)
+        Customer Refusals - No Empties (%)
+        Customer Refusals - POC Closed within time window (%)
+        Customer Refusals - Order Placed Incorrectly by the customer (%)
+      Logistics Refusals (%)
+        Logistics Refusals - Loading Error (%)
+          Picking Accuracy (%)
+          Load Check Adherence (%)
+            Loading Errors Identified - Driver (#)
+            Loading Errors Identified - Checker (#)
+        Logistics Refusals - Quality Issue (%)
+          Logistics Refusals - Breakages (%)
+          Logistics Refusals - Freshness (%)
+            Logistics Refusals - Block Failure Freshness (%)
+            Logistics Refusals - Customer Policy Freshness (#)
+        Logistics Refusals - Missed Time Window (%)
+          Missed Time Window - Accident/Theft (#)
+          Missed Time Window - Equipment Breakages (#)
+          Route Sequence Adherence (%)
+            Delivery Reattempts (#)
+            Driving Time Dispersion (%)
+            Service Time Dispersion (%)
+          Time in Route Deviation (%)
+            Deviation of driving time (%)
+            Deviation of POC service time (%)
+          T2 Delivery Delay (khl)
+    Stock Out (khl)
+      Theoretical OOS (%)
+        Forecast Accuracy (%)
+      Inventory Accuracy (%)
+        Product in Warehouse - not picked/mispicked (khl)
+      Not in Warehouse - oversold (khl)
+    Logistics Issue (khl)
+      T2 Sales Curve Index (%)
+      T2 Fleet Availability (%)
+      @LOADING
+      Orders not routed (khl)
+    Master Data / System Issue (khl)
+    Credit Issue (khl)`;
+const LOADING = `Loading Process Delay (khl)
+  Warehouse Absenteeism (%)
+  Equipments Availability (%)
+  Routes sent on time (%)
+  T2 Mixed Pallets (%)
+  Loading Process Productivity (pck/h)
+    Volume to be loaded (khl)
+  Route Return Delay (h)
+  Picking Area Replenishments On Time (%)`;
+
+const OUT_PROD = `Total Productivity (cases/h)
+  2T Total Warehouse Network Productivity (cases/h)
+    Warehouse Direct Paid Labor Productivity - WLP (h)
+      Replenishment Productivity (cases/h)
+        Quality Issues (#)
+          Internal Movements Damage (#)
+          Issues/damages Identified in Receiving Process (#)
+        Average Truck Cycle Time - gate to gate (h/truck)
+          Arriving/Waiting Time (h)
+          Attendance Time (h)
+            Finished Good Unloading Time (h)
+            Asset Loading Time (h)
+            Drop and Hook Performance
+          Departure Time (h)
+            Open Truck Loading Time (h)
+        T1 Service Level Agreement (%)
+          Replenishments per Hour (#/h)
+        Pallet Deconsolidation (cases)
+        5S Adherence (%)
+      Picking Productivity (cases/h)
+        Number of Night Shift Picking Area Replenishment - during picking (#)
+        ABC Standard Adherence (%)
+        Picking Accuracy (%)
+        Total damage in Picking (cases)
+        Pallet Complexity (%)
+        5S Adherence (%)
+      Sorting Productivity (cases/h)
+        Issues/damages found in sorting (%)
+        Sorting Sample Size (#)
+        5S Adherence (%)
+      Forklift Network Productivity (cases/h)
+        Loading Productivity (cases/h)
+          Total Damage in Loading (cases)
+          Loading efficiency (%)
+            Loading time per truck (min)
+            2nd Trip (%)
+          5S Adherence (%)
+        Unloading Productivity (cases/h)
+          Refusals (#)
+          T2 trucks unloaded within target (#)
+            T2 Unloading time per truck (h)
+          Total damage in unloading (cases)
+          5S Adherence (%)
+        2T Forklift Working Hours (h)
+          Productive Hours with load (h)
+          Productive Hours without load (h)
+      Other Productivities (cases/h)
+        Repacking Efficiency (cases/h)
+        Counting Efficiency (cases/h)
+      Overtime (h)
+        Holiday Hours (h)
+        Normal Hours (h)
+    Warehouse Indirect Labor Productivity (cases/h)
+      Warehouse Leadership Labor Paid Hours in DC (h)
+      Warehouse Other Support Employees Labor Paid Hours in DC (h)
+  2T Transport Labor Productivity (cases/h)
+    Volume Delivered (cases)
+    Delivery Team Hours - direct (h)
+      Total Hours per Trip (h/trip)
+        Average Departure Time (min)
+          Clock-In On Time (min)
+          Team Room Management Time (min)
+          Checklists Execution Time - Safety/Inventory Validation (min)
+        Working Hours in transit - Time in Route (h)
+          Driving Time (h)
+            Time Deviation (%)
+              Unexpected Stops (# or h)
+              2T KM Deviation (%)
+                Sequence Adherence (%)
+                Track and Trace Adherence (%)
+              Reattempts (#)
+          Service Time per POC (h)
+            Time Deviation (%)
+              Stops Without Payment Ready (#)
+              No Empties (#)
+              Track and Trace Adherence (%)
+              Sequence Adherence (Time Window Adherence) (%)
+        Total Internal Time (h)
+          Total Physical Check Time (h)
+          Total Financial Closure Time (h)
+          Post Trip Safety Inspection (h)
+        Overtime Hours (h)
+          Normal Hours (h)
+          Holiday Hours (h)
+      Non Delivery Hours - Operational Hours not Used (h)
+        Vacation Hours (h)
+        Unpaid Hours - Voluntary Time Off (h)
+        Safety-related absence hours (h)
+        Health-related absence hours (h)
+        Idle hours - under volume, warehouse/admin/etc (h)
+      SPOT Hours/Trips
+    Management Hours - indirect (h)
+      Leadership hours - manager, supervisor, coordinator (h)
+      Operational hours  - direct support to operators (h)
+      Staff/Other hours - cleaner, admin, cashier (h)`;
+
+const OUT_CPC = `Cost per Cases ($/case)
+  Warehouse Costs per Cases ($/case)
+    Total Warehouse People Costs ($/case)
+      2T Total Warehouse Network Productivity (cases/h)
+      Warehouse People Cost per Hour ($/h)
+        Warehouse Back Office People Costs ($/h)
+        Warehouse Front Line People Costs ($/h)
+          Warehouse Front Line People Salary Costs ($/h)
+            Warehouse Fixed Front Line People Salary Costs ($/h)
+            Warehouse Variable Front Line People Salary Costs ($/h)
+          Warehouse Front Line People Benefits Costs ($/h)
+          Warehouse Front Line People Other Costs ($/h)
+    Warehouse Fuel Costs ($/case)
+      Cases per Hour (cases/h)
+      Fuel Cost per Hour ($/h)
+        Warehouse Fuel Price ($/kg)
+        Warehouse Fuel Consumption (kg/h)
+    Warehouse Non People Non Diesel Costs ($/case)
+      Forklift Fixed Costs ($/case)
+        Total Number of Forklifts (#/hl)
+        Price per Forklift ($/#)
+      Warehouse Maintenance Costs ($/case)
+      Warehouse Tire Costs ($/case)
+      Other Warehouse Costs ($/case)
+  Delivery Costs per Cases ($/case)
+    Total Delivery People Costs ($/case)
+      2T Transport Labor Productivity (cases/h)
+      Delivery Cost per Hour ($/h)
+        Delivery Back Office People Costs ($/h)
+        Delivery Front Line People Costs ($/h)
+          Delivery Front Line People Salary Costs ($/h)
+            Delivery Fixed Front Line People Salary Costs ($/h)
+            Delivery Variable Front Line People Salary Costs ($/h)
+          Delivery Front Line People Benefits Costs ($/h)
+          Delivery Front Line People Other Costs ($/h)
+    Delivery Fuel Costs ($/case)
+      Cases per Km (cases/km)
+      Fuel Costs per km ($/km)
+        Delivery Fuel Consumption (L/km)
+        Delivery Fuel Price ($/L)
+    Delivery Non People Non Diesel Costs ($/case)
+      Delivery Equipment Fixed Costs ($/case)
+        Cases per Asset (case/#)
+          Asset Efficiency (%)
+        Asset Price ($/#)
+      Delivery Maintenance Costs ($/case)
+      Delivery Tire Costs ($/case)
+      Other Delivery Costs ($/case)
+    SPOT Costs ($/case)`;
+
+const OUT_ASSETS = `Assets Efficiency (%)
+  Fixed Assets Utilization (%)
+    Fleet Fulfillment (Vehicles needed vs available) (%)
+      Vehicles Available (% or #)
+        In Service (%)
+          Vehicles Out of Compliance (#)
+            Vehicles missing global technical specification mandatory safety items (#)
+            Vehicles not meeting defined quality image standards (#)
+            Vehicles legal documents not renewed on time (#)
+          Ratio Completed/Reopened Repairs (%)
+          Ratio PM repairs/CM repairs (%)
+            Breakdowns (#)
+              Breakdowns due to missed checklist items (errors) (#)
+            Vehicle accidents/damage (#)
+              Operator telematics safety score (#)
+              Operator safety coachings (#)
+            Checklist completion (%)
+            CM items added to PM checklist (#)
+          Preventive Maintenance (PM) Compliance (%)
+            PM Curve Index (Preventative maintenance smoothing) (%)
+            Absenteeism (%)
+            Turnover (%)
+            Assets not available for PM (#)
+          Corrective Maintenance (CM) SLA Adherence (%)
+            Parts Availability (%)
+              Spare parts below minimum SLA (# or %)
+              Spare parts inventory differences (# or %)
+            Absenteeism (%)
+            Turnover (%)
+      Assets Routed (% or #)
+    Idle Fleet (%)
+      Planned Utilization / real utilization (planning) (%)
+        Absenteeism (%)
+        Total Productivity (cases/h)
+      Sales/stops curve index (%)
+      Idle truck due to volume variation (%)
+  Assets Occupation (%)
+    Fleet Availability (%) (correct vehicle type)
+      Corrective/Preventive Maintenance Ratio (%)
+        Fleet Checklist Completion (%)
+        Routes with checklist quality check (%)
+      PM Compliance (%)
+      In Service by asset (%)
+        Corrective Maintenance SLA Adherence (%)
+          Parts availability (%)
+          Mechanic productivity
+    Drop Size (hl/#)
+      Out of Route / Off Days (%)
+      Frequency of Orders
+        Frequency of Orders (Free Days)
+        Frequency of Orders (Flexible Days)
+    Stops per Route (#)
+      Orders routed vs loaded (%)
+        Loading Productivity (cases/h)
+          Total Damage in Loading (# or khl)
+          Loading efficiency (%)
+            Loading time per truck (h or min)
+            2nd Trip (%)
+          5S Adherence (%)
+        Average Departure Time (min)
+          Clock-In On Time (min)
+          Team Room Management Time (min)
+          Checklists Execution Time - Safety/Inventory Validation (min)
+      Working Hours in transit - Time in Route (h)
+        Driving Time (h)
+          Driving Time Deviation (%)
+            Unexpected Stops (# or h)
+            2T KM Deviation (%)
+              Sequence Adherence (%)
+              Track and Trace Adherence (#)
+            Reattempts (#)
+        Service Time per POC (h)
+          Service Time Deviation (%)
+            Stops Without Payment Ready (# or %)
+            No Empties (# or %)
+            Track and Trace Adherence (%)
+            Sequence Adherence (Time Window Adherence) (%)`;
+
+const ENG_FL = `Engagement Score (#)
+  Well-being Score (#)
+    Shift Scheduling (# of complaints)
+    Overtime (h)
+    Absenteeism (%)
+      Health/Safety Related Issues (# of days)
+      Non Health/Safety Related Issues (# of days)
+  Diversity and Inclusion Score (#)
+  Working Environment Safety Score (#)
+  Recognition and Rewards Score (#)
+    CR Level / MRS`;
+const ENG_LD = `Engagement Score (#)
+  Well-being Score (#)
+  Diversity and Inclusion Score (#)
+  Recognition and Rewards Score (#)
+    CR Level / MRS`;
+const OUT_TO = `Turnover (%)
+  Involuntary TO (% or #)
+    TO - Low Performance (% or #)
+      OPR Rating - Underperforming (%)
+    TO - Organization Restructuring (% or #)
+    TO - Behavior Issues (% or #)
+    TO - Non Justified Absenteeism (% or #)
+  Voluntary TO (%)
+    Voluntary TO - New Hire (% or #)
+      Voluntary TO - New Hire - Leadership (% or #)
+        Onboarding Feedback (#)
+        Assigned Buddy Feedback (#)
+        OPR Rating - Underperforming (#)
+        Leadership Score (180 or 360 review) (#)
+        @ENG_LD
+        Target Achievement (%)
+      Voluntary TO - New Hire - Front-line (% or #)
+        Onboarding Feedback (#)
+        Assigned Buddy Feedback (#)
+        OPR Rating - Underperforming (#)
+        Leadership Score (#)
+        @ENG_FL
+        Target Achievement (%)
+    Voluntary TO - Non New Hire (% or #)
+      Voluntary TO - Non New Hire - Leadership (% or #)
+        OPR Rating - Underperforming (#)
+        Leadership Score (180 or 360 review) (#)
+        @ENG_LD
+        Target Achievement (%)
+      Voluntary TO - Non New Hire - Front-line (% or #)
+        Onboarding Feedback (#)
+        Assigned Buddy Feedback (#)
+        OPR Rating - Underperforming (#)
+        Leadership Score (#)
+        @ENG_FL
+        Target Achievement (%)`;
+
+const SIF_CATS = ['Falls','Vehicle Incident','Forklift Incident','Pedestrians Hit by Vehicle','Musculoskeletal Disorders','Contact with Objects','Cut by Sharps, Glass or Other Sharp Object','Violence (Robbery-Assault)','Exposure to Hazardous Substances','Exposure to Heat and Cold','Exposure to Electricity','Fire','Explosion/Implosion','Exposure to Dust – Non Hazardous','Exposure to Noise','Confined Space Incidents','Animals','Walkie Incident','Machine Incident','Power Tool Incident','Lifting Equipment Incident'];
+function sifBlock(t){
+  let s = `    SIF ${t} (#)\n`;
+  for(const c of SIF_CATS){
+    s += `      SIF Actual ${t} - ${c}\n        SIF Potential - ${c}\n          SIF Precursor - ${c}\n`;
+    const rx = `Risk Exposure - ${c==='Falls'?'Fall':c} (Process Issue) (#)`;
+    if(c==='Vehicle Incident') s += `            Globally Defined SIF Precursors\n              Speeding\n              12 Hour Violation\n            Locally Defined Risk Exposure\n              ${rx}\n`;
+    else s += `            ${rx}\n`;
+  }
+  return s;
+}
+const OUT_TRI = `2T Total Recordable Injuries (TRI) (#)\n  SIF (#)\n` + sifBlock('LTI') + sifBlock('MDI') + sifBlock('MTI') +
+`  Non-SIF (#)
+    Non-SIF LTI (#)
+      Non-SIF MDI (#)
+        Non-SIF MTI (#)
+          FAI (#)
+            Near Misses (#)
+              Observation (#)
+                Risk Exposure (#)`;
+
+const OUT_TQI = `Total Quality Index (%)`;
+
+function expand(txt, map){
+  const out=[];
+  for(const line of txt.split('\n')){
+    const ind = line.match(/^ */)[0];
+    const t = line.trim();
+    const m = t.match(/^@(\w+)(?::(.*))?$/);
+    if(!m){ out.push(line); continue; }
+    if(m[1]==='DAMAGED'){ out.push(ind+m[2]); map.DAMAGED.split('\n').forEach(l=>out.push(ind+'  '+l)); }
+    else if(m[1]==='DRIVER'){ const p=m[2]; out.push(`${ind}${p} - "driver-related issue" (#)`,`${ind}  ${p} - "driver-related issue" due to employee behavior (#)`,`${ind}  ${p} - "driver-related issue" due to process knowledge (#)`); }
+    else map[m[1]].split('\n').forEach(l=>out.push(ind+l));
+  }
+  return out.join('\n');
+}
+const MAP = {DAMAGED, LOADING, ENG_FL, ENG_LD};
+
+const TREES = [
+  {id:'rmd',  grp:'SERVICIO', tab:'RMD',  title:'Rate My Delivery', out:expand(OUT_RMD,MAP),
+   note:'Calificación del cliente a la entrega (BEES). Se abre por tipo de evaluador (nuevos, promotores perdidos, detractores recurrentes) y por motivo de la mala nota.'},
+  {id:'otif', grp:'SERVICIO', tab:'OTIF', title:'On Time In Full', out:expand(OUT_OTIF,MAP),
+   note:'Nivel de servicio de entrega: a tiempo (On Time) y completo (In Full), con sus causas de demora, rechazo y quiebre.'},
+  {id:'prod', grp:'EFICIENCIA', tab:'PRODUCTIVIDAD', title:'Total Productivity', out:OUT_PROD,
+   note:'Cajas por hora pagada, separando la red de depósito (2T Warehouse) y el reparto (2T Transport).'},
+  {id:'cpc',  grp:'EFICIENCIA', tab:'COSTO X CAJA', title:'Cost per Case', out:OUT_CPC,
+   note:'Costo total por caja de depósito y de distribución, abierto en gente, combustible y no-gente/no-diésel.'},
+  {id:'assets',grp:'EFICIENCIA', tab:'ACTIVOS', title:'Assets Efficiency', out:OUT_ASSETS,
+   note:'Uso de la flota: utilización de activos fijos y ocupación (disponibilidad, drop size, paradas por ruta).'},
+  {id:'tri',  grp:'GENTE', tab:'TRI & LTI', title:'TRI & LTI', out:OUT_TRI, pathKeys:true,
+   note:'Lesiones registrables: SIF (LTI / MDI / MTI por categoría, con potencial, precursores y exposición al riesgo) y no-SIF por pirámide de seguridad. El SKPI "LTI" es la suma de "SIF LTI" + "Non-SIF LTI".'},
+  {id:'to',   grp:'GENTE', tab:'TURNOVER', title:'Turnover', out:OUT_TO, pathKeys:true,
+   note:'Rotación de personal involuntaria y voluntaria, abierta por antigüedad (nuevo ingreso / no nuevo) y por población (liderazgo / primera línea).'},
+  {id:'tqi',  grp:'CALIDAD', tab:'TQI', title:'Total Quality Index', out:OUT_TQI,
+   note:'En el tablero de Miro este árbol está vacío (solo el encabezado). Se deja el SKPI para cargar el resultado y definir su apertura cuando esté disponible.'}
+];
+
+/* ================= SUGERENCIAS DE CÁLCULO (validar) ================= */
+const SUG = {
+ 'T2 Rate My Delivery (#)':'Promedio de calificaciones RMD del mes = Σ calificaciones (1–5) / N° de entregas calificadas',
+ 'Deliveries With No Rating Given (%)':'Entregas sin calificación / Entregas totales × 100',
+ 'Deliveries With Rating Given (%)':'Entregas calificadas / Entregas totales × 100',
+ 'Deliveries With Low Rate <4 (#)':'Conteo de entregas calificadas con nota < 4 = Nuevos evaluadores + Promotores perdidos + Detractores recurrentes',
+ 'Deliveries With High Rate >=4 (#)':'Conteo de entregas calificadas con nota ≥ 4 = Detractores revertidos + Promotores recurrentes',
+ 'T2 OTIF (%)':'Pedidos entregados a tiempo y completos / Pedidos totales × 100 (≈ On Time % × In Full %)',
+ 'OTIF (%)':'Pedidos entregados a tiempo y completos / Pedidos totales × 100',
+ 'On Time (%)':'Volumen (o pedidos) entregado en la fecha/ventana comprometida / Volumen total programado × 100',
+ 'In Full (%)':'Volumen entregado / Volumen pedido × 100',
+ 'Refusals (%)':'Volumen rechazado / Volumen cargado × 100 = Sales + Customer + Logistics Refusals',
+ 'Sales Refusals (%)':'Volumen rechazado por motivos comerciales / Volumen cargado × 100',
+ 'Customer Refusals (%)':'Volumen rechazado por motivos del cliente / Volumen cargado × 100',
+ 'Logistics Refusals (%)':'Volumen rechazado por motivos logísticos / Volumen cargado × 100',
+ 'Picking Accuracy (%)':'Líneas (o cajas) pickeadas sin error / Total pickeado × 100',
+ 'Inventory Accuracy (%)':'(1 − |Σ diferencias de conteo| / Stock contado) × 100',
+ 'Forecast Accuracy (%)':'(1 − |Real − Pronóstico| / Real) × 100',
+ 'Mixed Pallets (%)':'Pallets mixtos / Pallets totales despachados × 100',
+ 'T2 Mixed Pallets (%)':'Pallets mixtos / Pallets totales despachados × 100',
+ 'Warehouse Absenteeism (%)':'Horas de ausencia del personal de depósito / Horas programadas × 100',
+ 'Delivery Absenteeism (%)':'Horas de ausencia del personal de reparto / Horas programadas × 100',
+ 'Absenteeism (%)':'Horas de ausencia / Horas programadas × 100',
+ 'Fleet Availability (%)':'Vehículos disponibles para salir / Vehículos totales de la flota × 100',
+ 'Sequence Adherence (%)':'Paradas visitadas en la secuencia planificada / Paradas totales × 100',
+ '5S Adherence (%)':'Puntaje de auditoría 5S / Puntaje máximo × 100',
+ 'Routes sent on time (%)':'Rutas enviadas al depósito antes del horario de corte / Rutas totales × 100',
+ 'Total Productivity (cases/h)':'Cajas entregadas / Horas pagadas totales (depósito + reparto)',
+ '2T Total Warehouse Network Productivity (cases/h)':'Cajas despachadas / Horas pagadas del depósito (directas + indirectas)',
+ '2T Transport Labor Productivity (cases/h)':'Cajas entregadas / Horas pagadas del equipo de reparto (directas + indirectas)',
+ 'Picking Productivity (cases/h)':'Cajas pickeadas / Horas de picking',
+ 'Loading Productivity (cases/h)':'Cajas cargadas / Horas de carga',
+ 'Unloading Productivity (cases/h)':'Cajas descargadas / Horas de descarga',
+ 'Replenishment Productivity (cases/h)':'Cajas recibidas/repuestas / Horas de recepción y reposición',
+ 'Overtime (h)':'Horas extra normales + Horas extra en feriado',
+ 'Overtime Hours (h)':'Horas extra normales + Horas extra en feriado',
+ 'Cost per Cases ($/case)':'(Costos de depósito + Costos de distribución) / Cajas entregadas',
+ 'Warehouse Costs per Cases ($/case)':'Gente depósito + Combustible depósito + No gente/no diésel depósito ($/caja)',
+ 'Total Warehouse People Costs ($/case)':'Costo de gente por hora ($/h) / 2T Total Warehouse Network Productivity (cajas/h)',
+ 'Warehouse People Cost per Hour ($/h)':'Back Office + Primera línea ($/h)',
+ 'Warehouse Front Line People Costs ($/h)':'Sueldos + Beneficios + Otros costos de primera línea ($/h)',
+ 'Warehouse Front Line People Salary Costs ($/h)':'Sueldos fijos + Sueldos variables ($/h)',
+ 'Warehouse Fuel Costs ($/case)':'Costo de combustible por hora ($/h) / Cajas por hora',
+ 'Fuel Cost per Hour ($/h)':'Precio del combustible ($/kg) × Consumo (kg/h)',
+ 'Warehouse Non People Non Diesel Costs ($/case)':'Autoelevadores + Mantenimiento + Neumáticos + Otros ($/caja)',
+ 'Forklift Fixed Costs ($/case)':'Costo fijo mensual de autoelevadores / Cajas despachadas (≈ N° autoelevadores × precio / volumen)',
+ 'Delivery Costs per Cases ($/case)':'Gente reparto + Combustible reparto + No gente/no diésel + SPOT ($/caja)',
+ 'Total Delivery People Costs ($/case)':'Costo de reparto por hora ($/h) / 2T Transport Labor Productivity (cajas/h)',
+ 'Delivery Cost per Hour ($/h)':'Back Office + Primera línea de reparto ($/h)',
+ 'Delivery Front Line People Costs ($/h)':'Sueldos + Beneficios + Otros costos de primera línea ($/h)',
+ 'Delivery Front Line People Salary Costs ($/h)':'Sueldos fijos + Sueldos variables ($/h)',
+ 'Delivery Fuel Costs ($/case)':'Costo de combustible por km ($/km) / Cajas por km',
+ 'Fuel Costs per km ($/km)':'Consumo (L/km) × Precio del combustible ($/L)',
+ 'Cases per Km (cases/km)':'Cajas entregadas / Km recorridos',
+ 'Delivery Non People Non Diesel Costs ($/case)':'Equipos + Mantenimiento + Neumáticos + Otros ($/caja)',
+ 'Delivery Equipment Fixed Costs ($/case)':'Precio/costo fijo del activo ($/#) / Cajas por activo',
+ 'Cases per Asset (case/#)':'Cajas entregadas / N° de camiones activos',
+ 'SPOT Costs ($/case)':'Costo de fletes spot / Cajas entregadas',
+ 'Assets Efficiency (%)':'Fixed Assets Utilization % × Assets Occupation %',
+ 'Fixed Assets Utilization (%)':'Días-camión utilizados / Días-camión disponibles × 100',
+ 'Assets Occupation (%)':'Carga real transportada / Capacidad de los camiones utilizados × 100',
+ 'Fleet Fulfillment (Vehicles needed vs available) (%)':'Vehículos disponibles / Vehículos necesarios × 100',
+ 'Idle Fleet (%)':'Días-camión sin salir / Días-camión disponibles × 100',
+ 'Drop Size (hl/#)':'Hectolitros entregados / N° de entregas',
+ 'Stops per Route (#)':'Paradas totales / Rutas totales',
+ 'Preventive Maintenance (PM) Compliance (%)':'Preventivos realizados en fecha / Preventivos programados × 100',
+ 'PM Compliance (%)':'Preventivos realizados en fecha / Preventivos programados × 100',
+ 'Turnover (%)':'Bajas del mes / Dotación promedio del mes × 100 = Involuntario + Voluntario',
+ 'Involuntary TO (% or #)':'Bajas involuntarias / Dotación promedio × 100',
+ 'Voluntary TO (%)':'Bajas voluntarias / Dotación promedio × 100',
+ '2T Total Recordable Injuries (TRI) (#)':'N° de lesiones registrables del mes (LTI + MDI + MTI) = SIF + Non-SIF',
+ 'SIF (#)':'SIF LTI + SIF MDI + SIF MTI',
+ 'SIF LTI (#)':'N° de lesiones SIF con pérdida de días (Lost Time Injury)',
+ 'SIF MDI (#)':'N° de lesiones SIF con días de trabajo restringido (Modified Duty Injury)',
+ 'SIF MTI (#)':'N° de lesiones SIF con tratamiento médico sin pérdida de días (Medical Treatment Injury)',
+ 'Non-SIF LTI (#)':'N° de LTI no SIF. LTI total (SKPI) = SIF LTI + Non-SIF LTI'
+};
+const FUE = {
+ 'T2 Rate My Delivery (#)':'BEES – encuestas Rate My Delivery (exportación mensual)'
+};
+
+/* ================= MODELO ================= */
+const NODES = {}; // id -> node
+function parseUnit(t){ const m=t.match(/^(.*?)\s*\(([^()]*)\)\s*$/); if(!m) return {name:t,unit:''}; return {name:m[1],unit:m[2]}; }
+for(const tr of TREES){
+  const lines = tr.out.split('\n').filter(l=>l.trim());
+  const stack=[]; tr.roots=[]; tr.all=[];
+  lines.forEach((l,i)=>{
+    const d=(l.match(/^ */)[0].length)/2, text=l.trim();
+    while(stack.length>d) stack.pop();
+    const parent=stack[stack.length-1]||null;
+    const pu=parseUnit(text);
+    const n={id:tr.id+'-'+i, tree:tr, text, name:pu.name, unit:pu.unit, depth:d, parent, kids:[]};
+    n.chain = (parent?parent.chain+' › ':'')+text;
+    n.key = tr.pathKeys ? tr.id+'|'+n.chain : text;
+    if(parent) parent.kids.push(n); else tr.roots.push(n);
+    stack.push(n); tr.all.push(n); NODES[n.id]=n;
+  });
+}
+const LVL = d => d===0?'SKPI':d===1?'KPI':'PI';
+const LOWER_RX = /cost|damage|delay|absent|refus|deviation|dispersion|turnover|\bTO\b|mixed|idle|overtime|postponed|stock out|out of|breakdown|issue|reattempt|unexpected|low rate|no rating|detractor|lost|injur|SIF|LTI|MDI|MTI|FAI|near miss|risk|withdraw|error|without|waiting|time|missed|accident|underperform|complaint|oos|not |oversold|holiday|vacation|unpaid|absence|hours|spare parts below|complexity|differences|out of compliance|missing|not meeting/i;
+function meta(n){ return ST.meta[n.key] || {}; }
+function dirOf(n){ const m=meta(n); if(m.dir) return m.dir; if(/Productivity|Accuracy|Adherence|Availability|Efficiency|Compliance|Score|Fulfillment|Utilization|Occupation|On Time \(|In Full|OTIF|Rate My Delivery|Rating Given|High Rate|Promoters|Reversed|Feedback|Achievement|In Service|Volume Delivered|Cases per|Drop Size|Stops per|Routed|completion|SLA/i.test(n.text) && !/Dispersion|Deviation/.test(n.text)) return 'up'; return LOWER_RX.test(n.text)?'down':'up'; }
+function calcOf(n){ return meta(n).calc || ''; }
+function fuenteOf(n){ return meta(n).fuente || ''; }
+
+/* ================= PERÍODOS ================= */
+const MES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const now=new Date(); const curYM = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+function ymAdd(ym,k){ let [y,m]=ym.split('-').map(Number); m+=k; while(m<1){m+=12;y--} while(m>12){m-=12;y++} return y+'-'+String(m).padStart(2,'0'); }
+function ymLbl(ym){ const [y,m]=ym.split('-').map(Number); return MES[m-1]+' '+y; }
+let PER = curYM;
+(function(){ const s=document.getElementById('fMes'); let ym=ymAdd(curYM,6); const start='2024-01'; while(ym>=start){ const o=document.createElement('option'); o.value=ym; o.textContent=ymLbl(ym)+(ST.vals[ym]&&Object.keys(ST.vals[ym]).length?' ●':''); s.appendChild(o); ym=ymAdd(ym,-1);} s.value=PER; })();
+
+function val(n,ym){ const v=(ST.vals[ym]||{})[n.key]; return (v===undefined||v===null||v==='')?null:v; }
+function fmt(v){ if(v===null||v===undefined||v==='') return ''; const x=Number(v); if(isNaN(x)) return String(v); return x.toLocaleString('es-AR',{maximumFractionDigits:2}); }
+function num(s){ if(s===null||s===undefined) return null; s=String(s).trim().replace(/\s/g,''); if(!s) return null; if(/,/.test(s)) s=s.replace(/\./g,'').replace(',','.'); const x=Number(s); return isNaN(x)?null:x; }
+function status(n,ym){ const v=val(n,ym); if(v===null) return 'vacio'; const o=num(meta(n).obj); if(o===null) return 'gris'; const up=dirOf(n)==='up'; const ok= up? v>=o : v<=o; if(ok) return 'verde'; const gap = up ? (o-v)/Math.abs(o||1) : (v-o)/Math.abs(o||1); return gap<=0.05?'amarillo':(gap<=0.15?'naranja':'rojo'); }
+
+/* ================= UI ================= */
+const esc = s => String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let TAB='info'; const OPEN={}; // nodeId -> bool
+TREES.forEach(t=>t.all.forEach(n=>OPEN[n.id]=n.depth<2));
+
+function buildNav(){
+  const nav=document.getElementById('nav'); let h='<button data-t="info">INFO</button>'; let g=null;
+  for(const t of TREES){ if(t.grp!==g){ if(g) h+='</div>'; h+=`<div class="grp"><span>${t.grp}</span>`; g=t.grp; } h+=`<button data-t="${t.id}">${t.tab}</button>`; }
+  h+='</div><button data-t="defs">DEFINICIONES</button>';
+  nav.innerHTML=h;
+  nav.onclick=e=>{ const b=e.target.closest('button[data-t]'); if(b){ location.hash=b.dataset.t; } };
+  const tabs=document.getElementById('tabs');
+  tabs.innerHTML = `<section class="tab" id="t-info"></section>` + TREES.map(t=>`<section class="tab" id="t-${t.id}"></section>`).join('') + `<section class="tab" id="t-defs"></section>`;
+}
+function go(){ const h=location.hash.slice(1); TAB = (h==='info'||h==='defs'||TREES.some(t=>t.id===h))?h:'info';
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===TAB));
+  document.querySelectorAll('.tab').forEach(s=>s.classList.toggle('on',s.id==='t-'+TAB));
+  document.getElementById('fbar').style.display = TAB==='info'?'none':'';
+  render(); }
+
+function filt(){ return {show:document.getElementById('fShow').value, lvl:+document.getElementById('fLvl').value, q:document.getElementById('fQ').value.trim().toLowerCase()}; }
+function match(n,f){
+  if(n.depth>f.lvl) return false;
+  if(f.q){ const hay=(n.text+' '+fuenteOf(n)+' '+calcOf(n)+' '+(SUG[n.text]||'')).toLowerCase(); if(!hay.includes(f.q)) return false; }
+  const v=val(n,PER);
+  if(f.show==='nodata' && v!==null) return false;
+  if(f.show==='con' && v===null) return false;
+  if(f.show==='nofuente' && fuenteOf(n)) return false;
+  if(f.show==='nocalc' && calcOf(n)) return false;
+  if(f.show==='rojo' && !['rojo','naranja'].includes(status(n,PER))) return false;
+  return true;
+}
+function render(){
+  document.getElementById('perChip').textContent='📅 '+ymLbl(PER);
+  if(TAB==='info') return renderInfo();
+  if(TAB==='defs') return renderDefs();
+  renderTree(TREES.find(t=>t.id===TAB));
+}
+
+function tiles(t){
+  const r=t.roots[0], prev=ymAdd(PER,-1);
+  const v=val(r,PER), pv=val(r,prev), o=num(meta(r).obj);
+  const uniq=[...new Map(t.all.map(n=>[n.key,n])).values()];
+  const conDato=uniq.filter(n=>val(n,PER)!==null).length, conF=uniq.filter(n=>fuenteOf(n)).length, conC=uniq.filter(n=>calcOf(n)).length;
+  const pct=(a,b)=>b?Math.round(a/b*100)+'%':'—';
+  let d=''; if(v!==null&&pv!==null){ const dd=v-pv; d=(dd>=0?'▲ ':'▼ ')+fmt(Math.abs(dd))+' vs mes ant.'; }
+  return `<div class="kpis">
+    <div class="kpi"><div class="l">${esc(r.name)} · ${ymLbl(PER)}</div><div class="v">${v===null?'—':fmt(v)} <span class="unit">${esc(r.unit)}</span></div><div class="s">${d||(v===null?'Sin dato cargado':'Sin mes anterior para comparar')}</div></div>
+    <div class="kpi"><div class="l">Objetivo</div><div class="v">${o===null?'—':fmt(o)}</div><div class="s">${dirOf(r)==='up'?'↑ mayor es mejor':'↓ menor es mejor'}</div></div>
+    <div class="kpi"><div class="l">Mes anterior</div><div class="v">${pv===null?'—':fmt(pv)}</div><div class="s">${ymLbl(prev)}</div></div>
+    <div class="kpi"><div class="l">Indicadores con dato</div><div class="v">${pct(conDato,uniq.length)}</div><div class="s">${conDato} de ${uniq.length}</div></div>
+    <div class="kpi"><div class="l">Con fuente definida</div><div class="v">${pct(conF,uniq.length)}</div><div class="s">${conF} de ${uniq.length}</div></div>
+    <div class="kpi"><div class="l">Con cálculo definido</div><div class="v">${pct(conC,uniq.length)}</div><div class="s">${conC} de ${uniq.length}</div></div>
+  </div>`;
+}
+function visibleRows(t){
+  const f=filt(); const active = f.q || f.show!=='all';
+  const out=[];
+  if(active){
+    const keep=new Set();
+    t.all.forEach(n=>{ if(match(n,f)){ let p=n; while(p){ keep.add(p.id); p=p.parent; } } });
+    t.all.forEach(n=>{ if(keep.has(n.id) && n.depth<=f.lvl) out.push(n); });
+  } else {
+    const walk=n=>{ if(n.depth>f.lvl) return; out.push(n); if(OPEN[n.id]) n.kids.forEach(walk); };
+    t.roots.forEach(walk);
+  }
+  return {rows:out, active};
+}
+function defCell(txt, sug){
+  if(txt) return esc(txt);
+  if(sug) return `<span class="sug"><b>SUGERIDO</b>${esc(sug)}</span>`;
+  return '<span class="pend">Por definir</span>';
+}
+function renderTree(t){
+  const sec=document.getElementById('t-'+t.id);
+  const {rows,active}=visibleRows(t); const prev=ymAdd(PER,-1); const f=filt();
+  let h = tiles(t) + `<div class="trnote"><b>${esc(t.title)}.</b> ${esc(t.note)}</div>`;
+  h += `<div class="tblwrap"><table class="tree"><thead><tr><th class="sem"></th><th>Indicador</th><th>Nivel</th><th>Unidad</th><th style="text-align:right">${esc(ymLbl(PER))}</th><th style="text-align:right">Mes ant.</th><th style="text-align:right">Objetivo</th><th>Fuente de datos</th><th>Cálculo</th><th></th></tr></thead><tbody>`;
+  for(const n of rows){
+    const hasK = n.kids.length && n.depth<f.lvl;
+    const car = hasK ? `<button class="car" data-tog="${n.id}">${(OPEN[n.id]||active)?'▼':'▶'}</button>` : `<span class="car leaf">•</span>`;
+    const v=val(n,PER), pv=val(n,prev), m=meta(n);
+    h+=`<tr class="d${Math.min(n.depth,2)}" data-id="${n.id}"><td class="sem sem-${status(n,PER)}" data-sk="${esc(n.key)}"></td>
+      <td class="nm"><div class="nmw" style="padding-left:${n.depth*18}px">${car}<span>${esc(n.name)}</span></div></td>
+      <td><span class="lv lv-${LVL(n.depth)}">${LVL(n.depth)}</span></td>
+      <td class="unit">${esc(n.unit)}</td>
+      <td style="text-align:right"><input class="val${v!==null?' has':''}" data-k="${esc(n.key)}" value="${v===null?'':esc(fmt(v))}" inputmode="decimal" placeholder="—"></td>
+      <td class="prev">${pv===null?'—':fmt(pv)}</td>
+      <td class="obj">${m.obj?esc(m.obj)+' '+(dirOf(n)==='up'?'↑':'↓'):'<span class="muted">—</span>'}</td>
+      <td class="def">${defCell(fuenteOf(n), FUE[n.text])}</td>
+      <td class="def">${defCell(calcOf(n), SUG[n.text])}</td>
+      <td><button class="edit" data-ed="${n.id}">✎ Definir</button></td></tr>`;
+  }
+  if(!rows.length) h+=`<tr><td></td><td colspan="9" class="muted" style="padding:18px">No hay indicadores que cumplan el filtro.</td></tr>`;
+  h+='</tbody></table></div>';
+  sec.innerHTML=h;
+}
+
+function renderDefs(){
+  const sec=document.getElementById('t-defs'); const f=filt();
+  const seen=new Map();
+  for(const t of TREES) for(const n of t.all){ if(!seen.has(n.key)) seen.set(n.key,{n,trees:new Set(),lvl:n.depth}); const e=seen.get(n.key); e.trees.add(t.tab); e.lvl=Math.min(e.lvl,n.depth); }
+  let list=[...seen.values()].filter(e=>match(Object.assign(Object.create(e.n),{depth:e.lvl}),f));
+  const tot=seen.size, pf=[...seen.values()].filter(e=>fuenteOf(e.n)).length, pc=[...seen.values()].filter(e=>calcOf(e.n)).length;
+  let h=`<div class="kpis"><div class="kpi"><div class="l">Indicadores únicos</div><div class="v">${tot}</div></div>
+    <div class="kpi"><div class="l">Con fuente definida</div><div class="v">${pf}</div><div class="s">faltan ${tot-pf}</div></div>
+    <div class="kpi"><div class="l">Con cálculo definido</div><div class="v">${pc}</div><div class="s">faltan ${tot-pc} · ${Object.keys(SUG).length} con sugerencia</div></div></div>
+    <div class="trnote">Diccionario de todos los indicadores de los 8 árboles. Un indicador que aparece en varios árboles (ej. <i>Warehouse Absenteeism</i>) se define una sola vez y comparte su valor mensual. En TRI & LTI y Turnover cada nodo se define por separado porque el mismo nombre se repite con significados distintos según la rama.</div>
+    <div class="tblwrap"><table class="tree"><thead><tr><th>Indicador</th><th>Nivel</th><th>Unidad</th><th>Árbol(es)</th><th>Fuente de datos</th><th>Cálculo</th><th>Responsable</th><th></th></tr></thead><tbody>`;
+  for(const e of list){ const n=e.n, m=meta(n);
+    h+=`<tr><td class="nm"><div>${esc(n.name)}</div>${n.tree.pathKeys?`<div class="path">${esc(n.chain.split(' › ').slice(0,-1).slice(-2).join(' › '))}</div>`:''}</td><td><span class="lv lv-${LVL(e.lvl)}">${LVL(e.lvl)}</span></td><td class="unit">${esc(n.unit)}</td><td class="unit">${[...e.trees].join(', ')}</td>
+    <td class="def">${defCell(fuenteOf(n),FUE[n.text])}</td><td class="def">${defCell(calcOf(n),SUG[n.text])}</td><td class="unit">${esc(m.resp||'')}</td><td><button class="edit" data-ed="${n.id}">✎ Definir</button></td></tr>`; }
+  if(!list.length) h+='<tr><td colspan="8" class="muted" style="padding:18px">No hay indicadores que cumplan el filtro.</td></tr>';
+  sec.innerHTML=h+'</tbody></table></div>';
+}
+
+function renderInfo(){
+  const sec=document.getElementById('t-info');
+  sec.innerHTML=`<div class="grid2 info">
+   <div class="card"><div class="sect">DPO 2.0</div><h2>¿Qué es este reporte?</h2>
+    <p>Replica los <b>árboles de SKPIs de DPO 2.0</b> (tablero de Miro "DPO 2.0 – Global KPI Trees") para seguirlos mes a mes en Logística Total. Cada árbol parte de un <b>SKPI</b> y baja a los <b>KPIs</b> y <b>PIs</b> que lo explican.</p>
+    <ul><li><span class="lv lv-SKPI">SKPI</span> indicador estratégico (raíz del árbol).</li>
+    <li><span class="lv lv-KPI">KPI</span> primer nivel de apertura.</li>
+    <li><span class="lv lv-PI">PI</span> indicadores de proceso que explican el resultado.</li></ul>
+    <p>El reporte arranca <b>en blanco</b>: no hay valores cargados. A medida que se definan, cada indicador va a decir <b>de dónde se toma el dato</b> y <b>cómo se calcula</b>.</p></div>
+   <div class="card"><div class="sect">Cómo usarlo</div><h2>Paso a paso</h2>
+    <ol><li>Elegí el <b>Período</b> (mes) en la barra de filtros.</li>
+    <li>Entrá a un árbol y cargá el valor del mes en la columna del período.</li>
+    <li>Con <b>✎ Definir</b> completá la <b>fuente de datos</b> (sistema, reporte, planilla), el <b>cálculo</b>, el <b>objetivo</b>, el sentido (↑/↓) y el <b>responsable</b>. Donde ves <span class="sug"><b>SUGERIDO</b></span> hay una fórmula propuesta para validar.</li>
+    <li>Tocá <b>Guardar</b>. Los cambios quedan en la página para todos los que la abren.</li>
+    <li>La pestaña <b>DEFINICIONES</b> muestra qué indicadores siguen pendientes (filtro <i>Sin fuente / Sin cálculo definido</i>).</li></ol></div>
+   <div class="card"><div class="sect">Semáforo</div><h2>Lectura de colores</h2>
+    <div class="legend" style="flex-direction:column;gap:8px">
+     <span><i class="sq" style="background:var(--s-verde)"></i>Cumple el objetivo.</span>
+     <span><i class="sq" style="background:var(--s-amarillo)"></i>Desvío hasta 5% del objetivo.</span>
+     <span><i class="sq" style="background:var(--s-naranja)"></i>Desvío entre 5% y 15%.</span>
+     <span><i class="sq" style="background:var(--s-rojo)"></i>Desvío mayor a 15%.</span>
+     <span><i class="sq" style="background:var(--s-gris)"></i>Con dato pero sin objetivo cargado.</span>
+     <span><i class="sq" style="background:#f1f2f4;border:1px solid #ddd"></i>Sin dato en el período.</span></div></div>
+   <div class="card"><div class="sect">Análisis</div><h2>Preguntas que guían cada apertura</h2>
+    <p class="muted">Las mismas que aparecen en el tablero de Miro al bajar de nivel:</p>
+    <ul><li>¿Cómo se concentran los resultados?</li><li>¿Dónde se concentran los resultados?</li><li>¿Cuáles son las razones de este resultado?</li><li>¿Qué palanca impacta más en el resultado?</li><li>¿En qué tipo de costo se concentran los resultados?</li><li>¿Quién es responsable de este resultado?</li><li>¿Son confiables los resultados?</li></ul></div>
+   <div class="card" style="grid-column:1/-1"><div class="sect">Árboles</div><h2>Los 8 SKPIs</h2>
+    <div class="tblwrap" style="max-height:none"><table><thead><tr><th>Árbol</th><th>SKPI</th><th>Indicadores</th><th>Descripción</th></tr></thead><tbody>
+    ${TREES.map(t=>`<tr><td><button class="edit" onclick="location.hash='${t.id}'">${t.tab}</button></td><td><b>${esc(t.roots[0].text)}</b></td><td>${new Set(t.all.map(n=>n.key)).size}</td><td class="muted">${esc(t.note)}</td></tr>`).join('')}
+    </tbody></table></div></div></div>`;
+}
+
+/* ================= EDICIÓN ================= */
+let DIRTY=false, saveTimer=null, READONLY=false;
+function markDirty(){ DIRTY=true; const sb=document.getElementById('savebar'); sb.classList.add('on'); document.getElementById('sbTxt').textContent = MODE==='shared'?'Cambios sin guardar':'Cambios sin guardar (este navegador)'; clearTimeout(saveTimer); saveTimer=setTimeout(save,8000); }
+document.addEventListener('change',e=>{
+  const i=e.target.closest('input.val'); if(!i) return;
+  if(READONLY){ toast('Solo lectura: no tenés permiso para editar'); return; }
+  const k=i.dataset.k, x=num(i.value);
+  ST.vals[PER]=ST.vals[PER]||{};
+  if(x===null){ delete ST.vals[PER][k]; } else ST.vals[PER][k]=x;
+  document.querySelectorAll('input.val').forEach(o=>{ if(o.dataset.k===k){ o.value=x===null?'':fmt(x); o.classList.toggle('has',x!==null);} });
+  const any=Object.values(NODES).find(n=>n.key===k);
+  document.querySelectorAll('td.sem').forEach(td=>{ if(td.dataset.sk===k){ td.className='sem sem-'+status(any,PER);} });
+  const t=TREES.find(t=>t.id===TAB); if(t){ const sec=document.getElementById('t-'+t.id); const old=sec.querySelector('.kpis'); if(old) old.outerHTML=tiles(t); }
+  markDirty();
+});
+document.addEventListener('keydown',e=>{ const i=e.target.closest&&e.target.closest('input.val'); if(i&&e.key==='Enter'){ const all=[...document.querySelectorAll('input.val')]; const nx=all[all.indexOf(i)+1]; i.blur(); if(nx) nx.focus(); } });
+document.addEventListener('click',e=>{
+  const tg=e.target.closest('[data-tog]'); if(tg){ const id=tg.dataset.tog; OPEN[id]=!OPEN[id]; render(); return; }
+  const ed=e.target.closest('[data-ed]'); if(ed){ openEd(NODES[ed.dataset.ed]); return; }
+});
+function openEd(n){
+  const m=meta(n), sug=SUG[n.text]||'', fs=FUE[n.text]||'';
+  const md=document.getElementById('md');
+  md.innerHTML=`<div class="sect">${esc(n.tree.title)} · <span class="lv lv-${LVL(n.depth)}">${LVL(n.depth)}</span></div>
+   <h2>${esc(n.name)}</h2><div class="path">${esc(n.chain)}</div>
+   <div class="grid">
+    <label class="f full">Fuente de datos (sistema / reporte / planilla / área)<textarea id="eF" placeholder="Ej: SAP – reporte de rechazos por motivo; BEES; Roadnet; planilla de RRHH…">${esc(m.fuente||'')}</textarea>${fs&&!m.fuente?`<button class="lnk" data-use="eF" data-txt="${esc(fs)}">Usar sugerencia: ${esc(fs)}</button>`:''}</label>
+    <label class="f full">Cálculo / fórmula<textarea id="eC" placeholder="Ej: Volumen rechazado / Volumen cargado × 100">${esc(m.calc||'')}</textarea>${sug&&!m.calc?`<button class="lnk" data-use="eC" data-txt="${esc(sug)}">Usar sugerencia: ${esc(sug)}</button>`:''}</label>
+    <label class="f">Objetivo<input id="eO" value="${esc(m.obj||'')}" placeholder="Ej: 95"></label>
+    <label class="f">Sentido<select id="eD"><option value="up">↑ Mayor es mejor</option><option value="down">↓ Menor es mejor</option></select></label>
+    <label class="f">Responsable<input id="eR" value="${esc(m.resp||'')}" placeholder="Área o persona"></label>
+    <label class="f">Frecuencia de actualización<input id="eQ" value="${esc(m.freq||'Mensual')}"></label>
+    <label class="f full">Notas / criterios<textarea id="eN" placeholder="Exclusiones, cortes de fecha, aperturas…">${esc(m.notas||'')}</textarea></label>
+   </div>
+   <div class="row" style="margin-top:16px;justify-content:flex-end"><button class="btn sec" id="eX">Cancelar</button><button class="btn acc" id="eS">Aplicar</button></div>`;
+  md.querySelector('#eD').value=dirOf(n);
+  md.querySelectorAll('[data-use]').forEach(b=>b.onclick=()=>{ md.querySelector('#'+b.dataset.use).value=b.dataset.txt; b.remove(); });
+  md.querySelector('#eX').onclick=closeEd;
+  md.querySelector('#eS').onclick=()=>{
+    if(READONLY){ toast('Solo lectura: no tenés permiso para editar'); return; }
+    const g=id=>md.querySelector(id).value.trim();
+    ST.meta[n.key]={fuente:g('#eF'),calc:g('#eC'),obj:g('#eO'),dir:g('#eD'),resp:g('#eR'),freq:g('#eQ'),notas:g('#eN')};
+    closeEd(); render(); markDirty();
+  };
+  document.getElementById('ov').classList.add('on');
+}
+function closeEd(){ document.getElementById('ov').classList.remove('on'); }
+document.getElementById('ov').addEventListener('click',e=>{ if(e.target.id==='ov') closeEd(); });
+
+/* ================= FILTROS / ACCIONES ================= */
+document.getElementById('fMes').onchange=e=>{ PER=e.target.value; render(); };
+['fShow','fLvl'].forEach(id=>document.getElementById(id).onchange=render);
+let qT; document.getElementById('fQ').oninput=()=>{ clearTimeout(qT); qT=setTimeout(render,200); };
+document.getElementById('bExp').onclick=()=>{ const t=TREES.find(t=>t.id===TAB); (t?t.all:Object.values(NODES)).forEach(n=>OPEN[n.id]=true); render(); };
+document.getElementById('bCol').onclick=()=>{ const t=TREES.find(t=>t.id===TAB); (t?t.all:Object.values(NODES)).forEach(n=>OPEN[n.id]=n.depth<1); render(); };
+document.getElementById('bCopy').onclick=async()=>{
+  const t=TREES.find(t=>t.id===TAB); const ts=t?[t]:TREES; const prev=ymAdd(PER,-1);
+  const rows=[['Árbol','Nivel','Indicador','Ruta','Unidad',ymLbl(PER),ymLbl(prev),'Objetivo','Sentido','Fuente de datos','Cálculo','Responsable']];
+  const clean=s=>String(s??'').replace(/[\t\n\r]+/g,' ');
+  ts.forEach(tr=>tr.all.forEach(n=>{ const m=meta(n); rows.push([tr.title,LVL(n.depth),'  '.repeat(n.depth)+n.name,n.chain,n.unit,fmt(val(n,PER)),fmt(val(n,prev)),m.obj||'',dirOf(n)==='up'?'↑':'↓',fuenteOf(n),calcOf(n)||(SUG[n.text]?'[sugerido] '+SUG[n.text]:''),m.resp||''].map(clean)); }));
+  try{ await navigator.clipboard.writeText(rows.map(r=>r.join('\t')).join('\n')); toast('Tabla copiada: pegala en Excel'); }catch(e){ toast('No se pudo copiar al portapapeles'); }
+};
+document.getElementById('bJson').onclick=()=>{
+  const md=document.getElementById('md');
+  md.innerHTML=`<h2>Exportar / importar datos</h2><p class="muted" style="margin:6px 0 10px">Copia de seguridad de valores mensuales y definiciones. Sirve también para pasar los datos a otra versión de la página (por ejemplo, una publicada en GitHub Pages).</p>
+   <textarea id="jx" style="width:100%;min-height:220px;font-family:monospace;font-size:11.5px">${esc(JSON.stringify({meta:ST.meta,vals:ST.vals},null,1))}</textarea>
+   <div class="row" style="margin-top:12px;justify-content:flex-end"><button class="btn sec" id="jc">⧉ Copiar</button><button class="btn sec" id="jx0">Cerrar</button><button class="btn acc" id="ji">Importar lo pegado</button></div>`;
+  md.querySelector('#jx0').onclick=closeEd;
+  md.querySelector('#jc').onclick=async()=>{ try{ await navigator.clipboard.writeText(md.querySelector('#jx').value); toast('Copiado'); }catch(e){ toast('No se pudo copiar'); } };
+  md.querySelector('#ji').onclick=()=>{ try{ const o=JSON.parse(md.querySelector('#jx').value); if(!o.meta||!o.vals) throw 0; if(READONLY) return toast('Solo lectura'); ST.meta=o.meta; ST.vals=o.vals; closeEd(); render(); markDirty(); toast('Datos importados'); }catch(e){ toast('El texto no es un JSON válido de este reporte'); } };
+  document.getElementById('ov').classList.add('on');
+};
+
+/* ================= PERSISTENCIA ================= */
+let ART=null, MODE='init';
+function setConn(){ const c=document.getElementById('conn');
+  const map={init:['#999','conectando…'],shared:['#1e9e5a','datos compartidos'],local:['#e9c21b','modo local (este navegador)'],ro:['#9aa3b2','solo lectura']};
+  const [col,txt]=map[READONLY?'ro':MODE]; c.innerHTML=`<span class="dot" style="background:${col}"></span>${txt}${ST.upd?` · act. ${new Date(ST.upd).toLocaleDateString('es-AR')}`:''}`; }
+function buildDoc(){
+  ST.upd=new Date().toISOString();
+  const json=JSON.stringify(ST).replace(/</g,'\\u003c');
+  const open='<script type="application/json" id="st">';
+  const a=TPL.indexOf(open), b=TPL.indexOf(SCRIPT_END,a);
+  return TPL.slice(0,a+open.length)+json+TPL.slice(b);
+}
+async function save(){
+  clearTimeout(saveTimer); if(!DIRTY) return;
+  const btn=document.getElementById('bSave'); btn.disabled=true;
+  if(MODE==='shared'&&ART){
+    try{ await ART.publish(buildDoc()); DIRTY=false; document.getElementById('savebar').classList.remove('on'); toast('Guardado'); }
+    catch(e){ const code=(e&&(e.code||e.message))||''; if(/not_granted|not_writer/.test(code)){ READONLY=true; setConn(); toast('No tenés permiso para guardar cambios'); } else if(/conflict/.test(code)){ toast('Otra persona guardó al mismo tiempo; se recarga la última versión'); } else { toast('No se pudo guardar. Probá de nuevo.'); } }
+  } else {
+    try{ ST.upd=new Date().toISOString(); localStorage.setItem('ltsrl-dpo-kpis',JSON.stringify(ST)); DIRTY=false; document.getElementById('savebar').classList.remove('on'); toast('Guardado en este navegador'); }
+    catch(e){ toast('Este navegador no permite guardar; usá Exportar'); }
+  }
+  btn.disabled=false; setConn();
+}
+document.getElementById('bSave').onclick=save;
+window.addEventListener('beforeunload',e=>{ if(DIRTY){ e.preventDefault(); e.returnValue=''; } });
+
+function toast(t){ const el=document.getElementById('toast'); el.textContent=t; el.classList.add('on'); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('on'),2600); }
+
+buildNav();
+window.addEventListener('hashchange',go);
+go(); setConn();
+(async()=>{
+  try{ if(window.claude && typeof window.claude.use==='function') ART = await window.claude.use('artifact'); }catch(e){ ART=null; }
+  if(ART){ MODE='shared'; }
+  else { MODE='local'; try{ const s=localStorage.getItem('ltsrl-dpo-kpis'); if(s){ const o=JSON.parse(s); if(o&&o.meta&&o.vals){ ST=o; } } }catch(e){} render(); }
+  setConn();
+})();
+</script>
+</body>
+</html>
